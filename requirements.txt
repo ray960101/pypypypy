@@ -1,3 +1,5 @@
 easyocr
 pandas
 Pillow
+openai
+python-dotenv

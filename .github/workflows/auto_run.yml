@@ -1,6 +1,5 @@
 name: Auto Receipt Parser
 
-# 觸發條件：只要有人把檔案 push（上傳）到 main 分支就會觸發
 on:
   push:
     branches:
@@ -11,31 +10,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. 複製 GitHub 儲存庫的檔案到虛擬機
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    # 2. 設定 Python 環境
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
 
-    # 3. 安裝 Python 套件（快取優化加速）
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    # 4. 執行自動化記帳程式
-    - name: Run smart parser
-      run: python app.py
+      - name: Run smart parser
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python app.py
 
-    # 5. 超重要：把辨識後更新的 CSV 記帳本，自動 commit 並推回你的 GitHub 儲存庫
-    - name: Commit and Push changes
-      run: |
-        git config --global user.name "GitHub Actions Bot"
-        git config --global user.email "actions@github.com"
-        git add expenses_report.csv
-        # 檢查是否有檔案更新，有更新才 commit，避免報錯
-        git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 系統自動化：已自動辨識新收據並更新帳本" && git push)
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add expenses_report.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "🤖 系統自動化：已自動辨識新收據並更新帳本" && git push)
